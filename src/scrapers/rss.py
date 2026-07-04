@@ -5,8 +5,9 @@ import hashlib
 import logging
 import os
 import re
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 from email.utils import parsedate_to_datetime
 import httpx
 import feedparser
@@ -15,6 +16,22 @@ from .base import BaseScraper
 from ..models import ContentItem, SourceType, RSSSourceConfig
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class RSSFeedStats:
+    """Per-feed diagnostics from the most recent RSS fetch."""
+
+    name: str
+    url: str
+    status_code: Optional[int] = None
+    error: Optional[str] = None
+    parsed_entries: int = 0
+    returned_items: int = 0
+    skipped_old_items: int = 0
+    undated_fallback_items: int = 0
+    latest_parsed_date: Optional[datetime] = None
+    limited_items: int = 0
 
 
 class RSSScraper(BaseScraper):
@@ -28,6 +45,7 @@ class RSSScraper(BaseScraper):
             http_client: Shared async HTTP client
         """
         super().__init__({"sources": sources}, http_client)
+        self.feed_stats: List[RSSFeedStats] = []
 
     async def fetch(self, since: datetime) -> List[ContentItem]:
         """Fetch RSS feed items.
@@ -40,6 +58,7 @@ class RSSScraper(BaseScraper):
         """
         items = []
         sources = self.config["sources"]
+        self.feed_stats = []
 
         for source in sources:
             if not source.enabled:
@@ -63,6 +82,7 @@ class RSSScraper(BaseScraper):
             List[ContentItem]: Feed content items
         """
         items = []
+        stats = RSSFeedStats(name=source.name, url=str(source.url))
 
         try:
             # Expand environment variables in URL (e.g. ${LWN_TOKEN})
@@ -74,16 +94,35 @@ class RSSScraper(BaseScraper):
 
             # Fetch feed content
             response = await self.client.get(feed_url, follow_redirects=True)
+            stats.status_code = response.status_code
             response.raise_for_status()
 
             # Parse feed
             feed = feedparser.parse(response.text)
+            stats.parsed_entries = len(feed.entries)
+            fetch_time = datetime.now(timezone.utc)
 
             for entry in feed.entries:
                 # Parse published date
                 published_at = self._parse_date(entry)
-                if not published_at or published_at < since:
-                    continue
+                metadata = {
+                    "feed_name": source.name,
+                    "category": source.category,
+                    "tags": [tag.term for tag in entry.get("tags", [])],
+                }
+
+                if published_at:
+                    stats.latest_parsed_date = self._max_datetime(
+                        stats.latest_parsed_date,
+                        published_at,
+                    )
+                    if published_at < since:
+                        stats.skipped_old_items += 1
+                        continue
+                else:
+                    published_at = fetch_time
+                    stats.undated_fallback_items += 1
+                    metadata["date_source"] = "fetch_time_fallback"
 
                 # Generate unique ID from feed URL and entry ID
                 feed_id = str(source.url).split("//")[1].replace("/", "_")
@@ -103,22 +142,32 @@ class RSSScraper(BaseScraper):
                     content=content,
                     author=entry.get("author", source.name),
                     published_at=published_at,
-                    metadata={
-                        "feed_name": source.name,
-                        "category": source.category,
-                        "tags": [tag.term for tag in entry.get("tags", [])],
-                    },
+                    metadata=metadata,
                 )
                 items.append(item)
 
+            if source.fetch_limit is not None and len(items) > source.fetch_limit:
+                stats.limited_items = len(items) - source.fetch_limit
+                items = items[: source.fetch_limit]
+            stats.returned_items = len(items)
+
+        except httpx.HTTPStatusError as e:
+            stats.error = str(e)
+            if e.response is not None:
+                stats.status_code = e.response.status_code
+            logger.warning("Error fetching RSS feed %s: %s", source.name, e)
         except httpx.HTTPError as e:
+            stats.error = str(e)
             logger.warning("Error fetching RSS feed %s: %s", source.name, e)
         except Exception as e:
+            stats.error = str(e)
             logger.warning("Error parsing RSS feed %s: %s", source.name, e)
+        finally:
+            self.feed_stats.append(stats)
 
         return items
 
-    def _parse_date(self, entry: dict) -> datetime:
+    def _parse_date(self, entry: dict) -> Optional[datetime]:
         """Parse publication date from feed entry.
 
         Args:
@@ -138,11 +187,26 @@ class RSSScraper(BaseScraper):
                         )
                     # Fallback to string parsing
                     date_str = entry[field]
-                    return parsedate_to_datetime(date_str)
+                    return self._ensure_aware(parsedate_to_datetime(date_str))
                 except Exception:
                     continue
 
         return None
+
+    @staticmethod
+    def _ensure_aware(value: datetime) -> datetime:
+        """Return an aware datetime so comparisons against UTC windows are safe."""
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+
+    @staticmethod
+    def _max_datetime(
+        current: Optional[datetime], candidate: datetime
+    ) -> datetime:
+        if current is None or candidate > current:
+            return candidate
+        return current
 
     def _extract_content(self, entry: dict) -> str:
         """Extract text content from feed entry.

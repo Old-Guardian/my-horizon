@@ -10,7 +10,7 @@
     "max_tokens": 8192,
     "throttle_sec": 0.0,
     "analysis_concurrency": 50,
-    "enrichment_concurrency": 10,
+    "enrichment_concurrency": 20,
     "languages": [
       "zh"
     ],
@@ -87,6 +87,18 @@
         "category": "ai-news"
       },
       {
+        "name": "OpenAI News",
+        "url": "https://openai.com/news/rss.xml",
+        "enabled": true,
+        "category": "ai-news"
+      },
+      {
+        "name": "Anthropic News",
+        "url": "https://raw.githubusercontent.com/alan-turing-institute/ai-rss-feeds/refs/heads/main/feeds/anthropic-news.xml",
+        "enabled": true,
+        "category": "ai-news"
+      },
+      {
         "name": "Stanford AI Lab (SAIL) Blog",
         "url": "https://ai.stanford.edu/blog/feed.xml",
         "enabled": true,
@@ -99,14 +111,26 @@
         "category": "official-blog"
       },
       {
+        "name": "MIT News - AI Topic",
+        "url": "https://news.mit.edu/rss/topic/artificial-intelligence2",
+        "enabled": true,
+        "category": "official-blog"
+      },
+      {
         "name": "OpenAI Blog",
         "url": "https://openai.com/blog/rss.xml",
         "enabled": true,
         "category": "official-blog"
       },
       {
+        "name": "Claude Blog",
+        "url": "https://raw.githubusercontent.com/alan-turing-institute/ai-rss-feeds/refs/heads/main/feeds/claude-blog.xml",
+        "enabled": true,
+        "category": "official-blog"
+      },
+      {
         "name": "Anthropic Research",
-        "url": "https://rsshub.app/anthropic/engineering",
+        "url": "https://raw.githubusercontent.com/alan-turing-institute/ai-rss-feeds/refs/heads/main/feeds/anthropic-research.xml",
         "enabled": true,
         "category": "official-blog"
       },
@@ -125,6 +149,12 @@
       {
         "name": "Google Research Blog",
         "url": "https://blog.research.google/atom.xml",
+        "enabled": true,
+        "category": "official-blog"
+      },
+      {
+        "name": "Google Deepmind Blog",
+        "url": "https://research.google/blog/rss",
         "enabled": true,
         "category": "official-blog"
       },
@@ -153,16 +183,70 @@
         "category": "official-blog"
       },
       {
+        "name": "PyTorch Blog",
+        "url": "https://pytorch.org/feed",
+        "enabled": true,
+        "category": "official-blog"
+      },
+      {
+        "name": "TensorFlow Blog",
+        "url": "https://blog.tensorflow.org/feeds/posts/default",
+        "enabled": true,
+        "category": "official-blog"
+      },
+      {
+        "name": "AISI Blog",
+        "url": "https://raw.githubusercontent.com/alan-turing-institute/ai-rss-feeds/refs/heads/main/feeds/aisi-blog.xml",
+        "enabled": true,
+        "category": "official-blog"
+      },
+      {
         "name": "美团 Blog",
         "url": "https://tech.meituan.com/feed/",
         "enabled": true,
         "category": "official-blog"
       },
       {
-        "name": "Nature",
-        "url": "https://www.nature.com/nature.rss",
+        "name": "arXiv cs.AI",
+        "url": "https://rss.arxiv.org/rss/cs.AI",
         "enabled": true,
-        "category": "journal"
+        "category": "paper",
+        "fetch_limit": 50
+      },
+      {
+        "name": "arXiv cs.LG",
+        "url": "https://rss.arxiv.org/rss/cs.LG",
+        "enabled": true,
+        "category": "paper",
+        "fetch_limit": 50
+      },
+      {
+        "name": "arXiv cs.CL",
+        "url": "https://rss.arxiv.org/rss/cs.CL",
+        "enabled": true,
+        "category": "paper",
+        "fetch_limit": 50
+      },
+      {
+        "name": "arXiv cs.CV",
+        "url": "https://rss.arxiv.org/rss/cs.CV",
+        "enabled": true,
+        "category": "paper",
+        "fetch_limit": 50
+      },
+      {
+        "name": "arXiv cs.RO",
+        "url": "https://rss.arxiv.org/rss/cs.RO",
+        "enabled": true,
+        "category": "paper",
+        "fetch_limit": 50
+      },
+      {
+        "name": "arXiv cs.CR",
+        "url": "https://rss.arxiv.org/rss/cs.CR",
+        "enabled": true,
+        "category": "paper",
+        "fetch_limit": 50
       }
     ],
     "reddit": {
@@ -209,21 +293,14 @@
   },
   "filtering": {
     "ai_score_threshold": 7.0,
-    "time_window_hours": 24,
-    "max_items": 20,
+    "time_window_hours": 48,
+    "max_items": 25,
     "category_groups": {
       "AI News":{
         "name": "AI News",
-        "limit": 5,
-        "categories": [
-          "ai-news"
-        ]
-      },
-      "Official Blogs": {
-        "name": "Official Blogs",
         "limit": 10,
         "categories": [
-          "official-blog"
+          "ai-news"
         ]
       }
     },

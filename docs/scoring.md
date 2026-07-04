@@ -30,8 +30,12 @@ After fetching content from all sources, Horizon uses an AI model to score each 
 The AI evaluates each item based on:
 
 - **Technical depth and novelty** — original ideas, new techniques, research contributions
-- **Potential impact** — how broadly this affects software engineering, AI/ML, or systems research
+- **Potential impact** — how broadly this affects research, engineering practice, developer workflows, industry, education, safety, governance, or the open-source ecosystem
 - **Quality of writing/presentation** — clarity, structure, thoroughness
+- **Broad technical relevance** — AI/ML, machine learning systems, agents, NLP, computer vision, robotics, security, infrastructure, Linux/systems, programming tools, open source, developer experience, and credible cross-disciplinary computing topics
+- **Research usefulness** — clear problem framing, methodology, empirical evidence, reproducibility, benchmarks, datasets, limitations, and connections to adjacent fields
+- **Engineering usefulness** — architecture, implementation details, performance, reliability, deployment lessons, maintainability, and trade-offs
+- **Ecosystem significance** — adoption signals, major actors, standards, platform shifts, funding or policy changes, and effects on builders or researchers
 - **Community discussion** — insightful comments, diverse viewpoints, substantive debates
 - **Engagement signals** — high upvotes/favorites paired with substantive discussion (not just raw numbers)
 

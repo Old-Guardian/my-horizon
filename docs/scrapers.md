@@ -72,7 +72,7 @@ Two source types are supported:
 
 **File**: `src/scrapers/rss.py`
 
-Fetches any Atom/RSS feed using the `feedparser` library. Tries multiple date fields (`published`, `updated`, `created`) with fallback parsing.
+Fetches any Atom/RSS feed using the `feedparser` library. Tries multiple date fields (`published`, `updated`, `created`) with fallback parsing. Entries without a parseable date are treated as current for the run and marked with `metadata.date_source = "fetch_time_fallback"`.
 
 **Config** (`sources.rss`, list of entries):
 
@@ -81,13 +81,17 @@ Fetches any Atom/RSS feed using the `feedparser` library. Tries multiple date fi
   "name": "Simon Willison",
   "url": "https://simonwillison.net/atom/everything/",
   "enabled": true,
-  "category": "ai-tools"
+  "category": "ai-tools",
+  "fetch_limit": 50
 }
 ```
 
 - `category` — optional tag for grouping (e.g., `"programming"`, `"microblog"`)
+- `fetch_limit` — optional cap applied after time filtering and undated-entry fallback inclusion; default is `null`
 
 **Extracted data**: title, URL, author, content (from `summary`/`description`/`content` fields), feed name, category, and entry tags.
+
+**Diagnostics**: after RSS fetching, Horizon prints a per-feed report with HTTP status or error, parsed entry count, kept item count, skipped-old count, latest parsed date when available, undated fallback count, and any items dropped by `fetch_limit`. Feeds with zero kept items are included in the report.
 
 ## Reddit
 

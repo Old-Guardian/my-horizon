@@ -328,6 +328,9 @@ class HorizonOrchestrator:
         items = await scraper.fetch(since)
         self.console.print(f"   Found {len(items)} items from {name}")
 
+        if hasattr(scraper, "feed_stats"):
+            self._print_rss_feed_stats(scraper.feed_stats)
+
         # Show per-sub-source breakdown when there are multiple sub-sources
         sub_counts: Dict[str, int] = defaultdict(int)
         for item in items:
@@ -337,6 +340,32 @@ class HorizonOrchestrator:
                 self.console.print(f"      • {sub}: {count}")
 
         return items
+
+    def _print_rss_feed_stats(self, feed_stats) -> None:
+        """Print per-feed RSS diagnostics, including feeds with zero items."""
+        for stat in feed_stats:
+            line = (
+                f"      - {stat.name}: "
+                f"{stat.returned_items}/{stat.parsed_entries} kept"
+            )
+            details = []
+            if stat.status_code:
+                details.append(f"HTTP {stat.status_code}")
+            if stat.latest_parsed_date:
+                details.append(f"latest {stat.latest_parsed_date.date().isoformat()}")
+            if stat.skipped_old_items:
+                details.append(f"{stat.skipped_old_items} older than cutoff")
+            if stat.undated_fallback_items:
+                details.append(
+                    f"{stat.undated_fallback_items} used fetch-time fallback"
+                )
+            if stat.limited_items:
+                details.append(f"{stat.limited_items} over fetch_limit")
+            if stat.error:
+                details.append(f"error: {stat.error}")
+            if details:
+                line += ", " + ", ".join(details)
+            self.console.print(line)
 
     @staticmethod
     def _sub_source_label(item: ContentItem) -> str:

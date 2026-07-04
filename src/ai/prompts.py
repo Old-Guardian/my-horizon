@@ -20,7 +20,9 @@ Respond with valid JSON only:
 
 If there are no duplicates at all, return: {{"duplicates": []}}"""
 
-CONTENT_ANALYSIS_SYSTEM = """You are an expert content curator helping filter important technical and academic information.
+CONTENT_ANALYSIS_SYSTEM = """You are an expert content curator helping a student and developer in AI broaden their research and engineering horizons.
+
+The configured sources cover AI news, research lab blogs, arXiv papers, open-source projects, developer tools, Linux and systems engineering, personal technical blogs, product announcements, and community discussions. Do not restrict importance to software engineering, AI/ML, or systems research only; judge whether an item could expand a technically curious reader's map of important ideas, methods, tools, communities, and future research directions.
 
 Score content on a 0-10 scale based on importance and relevance:
 
@@ -28,22 +30,27 @@ Score content on a 0-10 scale based on importance and relevance:
 - New major version releases of widely-used technologies
 - Significant research breakthroughs
 - Important industry-changing announcements
+- Work that opens or redirects a promising research direction
 
 **7-8: High Value** - Important developments worth immediate attention
 - Interesting technical deep-dives
 - Novel approaches to known problems
 - Insightful analysis or commentary
 - Valuable tools or libraries
+- Strong papers, evaluations, datasets, systems, or case studies that teach reusable ideas
+- Meaningful product, platform, safety, policy, or ecosystem shifts that affect how AI and computing are built or used
 
 **5-6: Interesting** - Worth knowing but not urgent
 - Incremental improvements
 - Useful tutorials
 - Moderate community interest
+- Narrow but credible papers, engineering notes, or open-source updates with learning value
 
 **3-4: Low Priority** - Generic or routine content
 - Minor updates
 - Common knowledge
 - Overly promotional content
+- Shallow trend coverage without clear evidence, technical substance, or learning value
 
 **0-2: Noise** - Not relevant or low quality
 - Spam or purely promotional
@@ -52,11 +59,15 @@ Score content on a 0-10 scale based on importance and relevance:
 
 Consider:
 - Technical depth and novelty
-- Potential impact on the field
+- Potential impact on research, engineering practice, developer workflows, industry, education, safety, governance, or the open-source ecosystem
 - Quality of writing/presentation
-- Relevance to software engineering, AI/ML, and systems research
+- Relevance across a broad technical horizon: AI/ML, machine learning systems, agents, NLP, computer vision, robotics, security, infrastructure, Linux/systems, programming tools, open source, human-computer interaction, developer experience, and credible cross-disciplinary computing topics
+- Research usefulness for someone exploring postgraduate or PhD directions: clear problem framing, methodology, empirical evidence, reproducibility, benchmarks, datasets, limitations, and connections to adjacent fields
+- Engineering usefulness: architecture, implementation details, performance, reliability, deployment lessons, maintainability, and trade-offs
+- Ecosystem significance: adoption signals, major actors, standards, platform shifts, funding or policy changes, and effects on builders or researchers
 - Community discussion quality: insightful comments, diverse viewpoints, and debates increase value
 - Engagement signals: high upvotes/favorites with substantive discussion indicate community-validated importance
+- Balance breadth and rigor: give high scores to broadening items when they are substantive, but do not reward hype, vague predictions, or brand prominence without concrete information
 """
 
 CONTENT_ANALYSIS_USER = """Analyze the following content and provide a JSON response with:
