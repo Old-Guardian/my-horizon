@@ -223,12 +223,25 @@ All sources are configured under the top-level `sources` key in `config.json`.
         "name": "Blog Name",
         "url": "https://example.com/feed.xml",
         "enabled": true,
-        "category": "ai-ml"
+        "category": "ai-ml",
+        "fetch_limit": 50
       }
     ]
   }
 }
 ```
+
+- `category`: Optional tag for grouping, stored in item metadata.
+- `fetch_limit`: Optional per-feed cap applied after time filtering. Omit it or
+  set it to `null` to keep all matching items.
+
+RSS entries with no parseable `published`, `updated`, or `created` date are
+treated as current for that run. Horizon sets their `published_at` to fetch time
+and marks `metadata.date_source` as `fetch_time_fallback`.
+
+Run output includes per-feed RSS diagnostics, including feeds that fetched
+successfully but kept zero items because all dated entries were older than the
+configured time window.
 
 ### Reddit
 
