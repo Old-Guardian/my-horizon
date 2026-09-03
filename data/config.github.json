@@ -3,7 +3,7 @@
   "ai": {
     "provider": "deepseek",
     "provider_chain": null,
-    "model": "deepseek-v4-flash",
+    "model": "deepseek-v4-flash-vision-exp",
     "base_url": null,
     "api_key_env": "DEEPSEEK_API_KEY",
     "temperature": 0.3,
